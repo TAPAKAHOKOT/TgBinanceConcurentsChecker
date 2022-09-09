@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  bot_db:
+    container_name: bot_db
+    restart: always
+    image: postgres:12.0-alpine
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    command: -p ${DB_PORT}
+  bot:
+    container_name: bot
+    restart: always
+    depends_on:
+      - bot_db
+    build: ./
+    command: python main.py
+    volumes:
+      - ./:/usr/src/app/
+    env_file:
+      - ./.env
+volumes:
+  postgres_data:
